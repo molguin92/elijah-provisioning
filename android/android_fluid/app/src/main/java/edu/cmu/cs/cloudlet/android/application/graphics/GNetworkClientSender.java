@@ -87,14 +87,14 @@ public class GNetworkClientSender extends Thread {
 	
 	public void run() {
 		boolean ret = this.initConnection(this.Server_ipAddress, this.Server_port);
-		if(ret == false)
+		if (!ret)
 			return;
 		
 		// Socket Receiver Thread Start 
 		this.receiver.start();
 		
 		long lastSentTime = 0;
-		while(isThreadRun == true){
+		while (isThreadRun) {
 			if(commandQueue.size() == 0){
 				try {
 					Thread.sleep(1);

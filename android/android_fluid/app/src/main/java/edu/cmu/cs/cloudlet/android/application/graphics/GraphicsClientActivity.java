@@ -172,27 +172,27 @@ public class GraphicsClientActivity extends Activity implements SensorListener {
 	 * 							SCREEN ROTATION 						  *
 	 * ****************************************************************** */
 	
-    /* Rotation values */
+/*    *//* Rotation values *//*
 	private float xrot = 19.0f;					//X Rotation
 	private float yrot = -64.0f;					//Y Rotation
 
 	private float z = -5.0f;	
-    /*
+    *//*
 	 * These variables store the previous X and Y
 	 * values as well as a fix touch scale factor.
 	 * These are necessary for the rotation transformation
 	 * added to this lesson, based on the screen touches. ( NEW )
-	 */
+	 *//*
 	private float oldX;
     private float oldY;
-	private final float TOUCH_SCALE = 0.2f;		//Proved to be good for normal rotation ( NEW )
+	private final float TOUCH_SCALE = 0.2f;		*///Proved to be good for normal rotation ( NEW )
 	
     /**
 	 * Override the touch screen listener.
 	 * 
 	 * React to moves and presses on the touchscreen.
 	 */
-	public boolean onTouchEvent(MotionEvent event) {
+/*	public boolean onTouchEvent(MotionEvent event) {
 		//
 		float x = event.getX();
         float y = event.getY();
@@ -229,7 +229,7 @@ public class GraphicsClientActivity extends Activity implements SensorListener {
         
         //We handled the event
 		return true;
-	}
+	}*/
 	
 	
 	
