@@ -7,21 +7,22 @@
 
     <TextView
         android:layout_width="fill_parent"
-        android:layout_height="0dp"
+        android:layout_height="20dp"
         android:textSize = "25sp"
-        android:gravity="center_vertical"
+        android:gravity="center"
         android:layout_weight="1"
         android:text="Cloudlet" />
 
     <Button
         android:id="@+id/testCloudlet"
         android:layout_width="fill_parent"
-        android:layout_height="0dp"
+        android:layout_height="20dp"
         android:layout_gravity="bottom"
         android:layout_weight="1"
         android:text="Start Cloudlet" >
     </Button>
 
+    <!--
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="0dp"
@@ -89,4 +90,5 @@
         android:layout_weight="1"
         android:text="Start Amazon Asia" >
     </Button>
+    -->
 </LinearLayout>
