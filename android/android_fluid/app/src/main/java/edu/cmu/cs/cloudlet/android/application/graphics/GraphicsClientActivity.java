@@ -33,93 +33,108 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class GraphicsClientActivity extends Activity implements SensorListener {
-	public static final String TEST_ACC_FILE = "/mnt/sdcard/Cloudlet/Graphics/acc_input_50sec";
-	
-	public static String SERVER_ADDRESS = "server.krha.kr";
-	public static int SERVER_PORT = 9093;
+    public static final String TEST_ACC_FILE = "/mnt/sdcard/Cloudlet/Graphics/acc_input_50sec";
 
-	private SensorManager sensor;
-	private GNetworkClient connector;
-	private TextView textView;
+    public String SERVER_ADDRESS;
+    public int SERVER_PORT = 9093;
+    public static int SYNC_PORT = 5001;
+    private Synchronizer synchronizer;
 
-	protected ArrayList<String> testAccList = new ArrayList<String>();
-	
-	// Visualization
-	private Graphics graphics;
-	private GLSurfaceView GLView;
-	private PointRenderer pointRenderer;
-	
-	
-	/** Called when the activity is first created. */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-	    super.onCreate(savedInstanceState);
+    private SensorManager sensor;
+    private GNetworkClient connector;
+    private TextView textView;
 
-		setContentView(R.layout.graphics);
-		this.GLView = (GLSurfaceView) findViewById(R.id.fluidgl_view);
-		this.textView = (TextView) findViewById(R.id.fluid_textView);
-		
-		/** INIT GRAPHICS **/
-		//Graphics(true) == 3D, Graphics(false) == 2D
-		this.graphics = new Graphics();	
-		pointRenderer = new PointRenderer(this.graphics);
-		GLView.setRenderer(pointRenderer);
-		//RENDER ONLY WHEN THE SCENE HAS CHANGED
-		GLView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-		/***************ALLOW TOUCH COMMANDS **************/
-		GLView.requestFocus();
-		GLView.setFocusableInTouchMode(true);
-		/*******************/
-		
-		textView.setText("Initialization");
-		
-		sensor = (SensorManager) getSystemService(SENSOR_SERVICE);
-		this.connector = new GNetworkClient(this, GraphicsClientActivity.this);
+    protected ArrayList<String> testAccList = new ArrayList<String>();
 
-		Bundle extras = getIntent().getExtras();
-		this.SERVER_ADDRESS = extras.getString("address");
-		this.SERVER_PORT = extras.getInt("port");
-		
-		// Screen Size for visualization
-		Display display = getWindowManager().getDefaultDisplay();
-		VisualizationStaticInfo.screenWidth = display.getWidth();
-		VisualizationStaticInfo.screenHeight = display.getHeight();
-		
-		TimerTask autoStart = new TimerTask(){
-			@Override
-			public void run() {
-				connector.startConnection(SERVER_ADDRESS, SERVER_PORT);
-			} 
-		};
-	    
-		Timer startTiemr = new Timer();
-		startTiemr.schedule(autoStart, 1000);
-
-	}
+    // Visualization
+    private Graphics graphics;
+    private GLSurfaceView GLView;
+    private PointRenderer pointRenderer;
 
 
-	public void showAlert(String type, String message) {
-		new AlertDialog.Builder(GraphicsClientActivity.this).setTitle(type)
-				.setMessage(message).setIcon(R.drawable.ic_launcher)
-				.setNegativeButton("Confirm", null).show();
-	}
-	
-	private int counter = 0;
-	
-	public void updateData(Object obj) {
-		ByteBuffer buffer = (ByteBuffer)obj;
-		
-		graphics.updatePosition(buffer);
-		
-		//TELL THE RENDERER TO REDRAW THE SCENE
-		GLView.requestRender();
-	}
-	
-	
-	public void updateLog(String msg){
-		textView.setText(msg);
-		/*
-		this.textView.append(msg);
+    /**
+     * Called when the activity is first created.
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.graphics);
+        this.GLView = (GLSurfaceView) findViewById(R.id.fluidgl_view);
+        this.textView = (TextView) findViewById(R.id.fluid_textView);
+
+        /** INIT GRAPHICS **/
+        //Graphics(true) == 3D, Graphics(false) == 2D
+        this.graphics = new Graphics();
+        pointRenderer = new PointRenderer(this.graphics);
+        GLView.setRenderer(pointRenderer);
+        //RENDER ONLY WHEN THE SCENE HAS CHANGED
+        GLView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        /***************ALLOW TOUCH COMMANDS **************/
+        GLView.requestFocus();
+        GLView.setFocusableInTouchMode(true);
+        /*******************/
+
+        textView.setText("Initialization");
+
+        sensor = (SensorManager) getSystemService(SENSOR_SERVICE);
+        this.connector = new GNetworkClient(this, GraphicsClientActivity.this);
+
+        Bundle extras = getIntent().getExtras();
+        this.SERVER_ADDRESS = extras.getString("address");
+        this.SERVER_PORT = extras.getInt("port");
+
+        // Screen Size for visualization
+        Display display = getWindowManager().getDefaultDisplay();
+        VisualizationStaticInfo.screenWidth = display.getWidth();
+        VisualizationStaticInfo.screenHeight = display.getHeight();
+
+        TimerTask autoStart = new TimerTask() {
+            @Override
+            public void run() {
+                connector.startConnection(SERVER_ADDRESS, SERVER_PORT);
+            }
+        };
+
+        try {
+            synchronizer = new Synchronizer(SERVER_ADDRESS, SYNC_PORT);
+            synchronizer.start();
+            Thread.sleep(5000);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+
+        Timer startTiemr = new Timer();
+        startTiemr.schedule(autoStart, 1000);
+
+    }
+
+
+    public void showAlert(String type, String message) {
+        new AlertDialog.Builder(GraphicsClientActivity.this).setTitle(type)
+                .setMessage(message).setIcon(R.drawable.ic_launcher)
+                .setNegativeButton("Confirm", null).show();
+    }
+
+    private int counter = 0;
+
+    public void updateData(Object obj) {
+        ByteBuffer buffer = (ByteBuffer) obj;
+
+        graphics.updatePosition(buffer);
+
+        //TELL THE RENDERER TO REDRAW THE SCENE
+        GLView.requestRender();
+    }
+
+
+    public void updateLog(String msg) {
+        textView.setText(msg);
+        /*
+        this.textView.append(msg);
 		this.scrollView.post(new Runnable()
 	    {
 	        public void run()
@@ -128,50 +143,55 @@ public class GraphicsClientActivity extends Activity implements SensorListener {
 	        }
 	    });
 	    */
-	}
+    }
 
-	
-	@Override
-	public void onAccuracyChanged(int arg0, int arg1) {
 
-	}
+    @Override
+    public void onAccuracyChanged(int arg0, int arg1) {
 
-	@Override
-	public void onSensorChanged(int sensor, float[] values) {
+    }
+
+    @Override
+    public void onSensorChanged(int sensor, float[] values) {
         if (sensor == SensorManager.SENSOR_ACCELEROMETER) {
-        	connector.updateAccValue(values);
+            connector.updateAccValue(values);
         }
-	}
+    }
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		GLView.onResume();
-		this.sensor.registerListener(this, SensorManager.SENSOR_ACCELEROMETER,
-				SensorManager.SENSOR_DELAY_GAME);
-	}
+    @Override
+    protected void onResume() {
+        super.onResume();
+        GLView.onResume();
+        this.sensor.registerListener(this, SensorManager.SENSOR_ACCELEROMETER,
+                SensorManager.SENSOR_DELAY_GAME);
+    }
 
-	@Override
-	protected void onStop() {
-		this.sensor.unregisterListener(this);
-		if(this.connector != null)
-			this.connector.close();
-		super.onStop();
-	}
+    @Override
+    protected void onStop() {
+        try {
+            synchronizer.stop();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+        this.sensor.unregisterListener(this);
+        if (this.connector != null)
+            this.connector.close();
+        super.onStop();
+    }
 
-	@Override
+    @Override
     protected void onPause() {
         super.onPause();
-		GLView.onPause();
+        GLView.onPause();
         this.sensor.unregisterListener(this);
     }
 
-	
-	
-	/**********************************************************************
-	 * 							SCREEN ROTATION 						  *
-	 * ****************************************************************** */
-	
+
+    /**********************************************************************
+     * 							SCREEN ROTATION 						  *
+     * ****************************************************************** */
+
 /*    *//* Rotation values *//*
 	private float xrot = 19.0f;					//X Rotation
 	private float yrot = -64.0f;					//Y Rotation
@@ -186,12 +206,12 @@ public class GraphicsClientActivity extends Activity implements SensorListener {
 	private float oldX;
     private float oldY;
 	private final float TOUCH_SCALE = 0.2f;		*///Proved to be good for normal rotation ( NEW )
-	
+
     /**
-	 * Override the touch screen listener.
-	 * 
-	 * React to moves and presses on the touchscreen.
-	 */
+     * Override the touch screen listener.
+     *
+     * React to moves and presses on the touchscreen.
+     */
 /*	public boolean onTouchEvent(MotionEvent event) {
 		//
 		float x = event.getX();
@@ -230,8 +250,6 @@ public class GraphicsClientActivity extends Activity implements SensorListener {
         //We handled the event
 		return true;
 	}*/
-	
-	
-	
-	
+
+
 }
