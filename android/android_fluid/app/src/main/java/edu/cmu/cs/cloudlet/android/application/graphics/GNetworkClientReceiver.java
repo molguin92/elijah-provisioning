@@ -34,11 +34,19 @@ public class GNetworkClientReceiver extends Thread {
 	private TreeMap<Integer, Long> receiver_stamps = new TreeMap<Integer, Long>(); 
 	private ArrayList<Long> reciver_time_list = new ArrayList<Long>();
 	private int duplicated_client_id;
+	private Logger logger;
 	
 	private HashMap<Integer, Long> latencyRecords = new HashMap<Integer, Long>();
 	private long totalLatency = 0;
 	
 	public GNetworkClientReceiver(DataInputStream dataInputStream, Handler mHandler) {
+		try {
+			logger = new Logger("receiver");
+			logger.start();
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
 		this.networkReader = dataInputStream;
 		this.mHandler = mHandler;
 	}
@@ -124,6 +132,8 @@ public class GNetworkClientReceiver extends Thread {
 		}
 		
 		long currentTime = System.currentTimeMillis();
+		int size = (3 * Integer.SIZE) / 8 + readSize;
+		logger.logMessage(clientID, size);
 		if(this.receiver_stamps.get(this.clientID) == null){
 			this.receiver_stamps.put(this.clientID, currentTime);
 //			Log.d("krha", "Save Client ID : " + this.clientID);			

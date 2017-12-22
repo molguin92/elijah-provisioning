@@ -99,7 +99,6 @@ public class GraphicsClientActivity extends Activity implements SensorListener {
         try {
             synchronizer = new Synchronizer(SERVER_ADDRESS, SYNC_PORT);
             synchronizer.start();
-            Thread.sleep(5000);
 
         } catch (Exception e) {
             e.printStackTrace();

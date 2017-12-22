@@ -44,11 +44,9 @@ public class Synchronizer implements Runnable {
                     if (!running) break;
                 }
 
-                long i = incoming.readLong(); // wait for ping
-                Log.i("int", "" + i);
+                incoming.readLong(); // wait for ping
                 time = System.currentTimeMillis();
                 outgoing.writeLong(time);
-                Log.i("Time", "" + time);
                 Thread.sleep(25);
             }
 
