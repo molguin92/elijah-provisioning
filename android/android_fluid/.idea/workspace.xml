@@ -15,13 +15,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8a1345a6-d52f-4cb7-bfa4-21bae1348341" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/Logger.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GNetworkClientReceiver.java" afterPath="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GNetworkClientReceiver.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GNetworkClientSender.java" afterPath="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GNetworkClientSender.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GraphicsClientActivity.java" afterPath="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GraphicsClientActivity.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/Synchronizer.java" afterPath="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/Synchronizer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/Logger.java" afterPath="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/Logger.java" />
     </list>
     <ignored path="$PROJECT_DIR$/build/classes/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -198,10 +195,11 @@
       <file leaf-file-name="GraphicsActivity.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GraphicsActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
+            <state relative-caret-position="476">
               <caret line="38" column="69" lean-forward="false" selection-start-line="38" selection-start-column="69" selection-end-line="38" selection-end-column="69" />
               <folding>
-                <element signature="imports" expanded="true" />
+                <element signature="e#3087#3088#0" expanded="false" />
+                <element signature="e#3120#3121#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -210,12 +208,40 @@
       <file leaf-file-name="GraphicsClientActivity.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GraphicsClientActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="374">
-              <caret line="94" column="35" lean-forward="false" selection-start-line="94" selection-start-column="35" selection-end-line="94" selection-end-column="35" />
+            <state relative-caret-position="-663">
+              <caret line="129" column="5" lean-forward="false" selection-start-line="129" selection-start-column="5" selection-end-line="129" selection-end-column="5" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="GNetworkClient.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GNetworkClient.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="952">
+              <caret line="83" column="39" lean-forward="false" selection-start-line="83" selection-start-column="39" selection-end-line="83" selection-end-column="39" />
               <folding>
-                <element signature="e#1423#1431#0" expanded="true" />
-                <element signature="e#3063#3230#0" expanded="true" />
-                <element signature="e#3229#3230#0" expanded="true" />
+                <element signature="imports" expanded="true" />
+                <element signature="e#2245#2246#0" expanded="true" />
+                <element signature="e#2290#2291#0" expanded="true" />
+                <element signature="e#2445#3351#0" expanded="true" />
+                <element signature="e#3350#3351#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="GNetworkClientSender.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GNetworkClientSender.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="357">
+              <caret line="178" column="40" lean-forward="false" selection-start-line="178" selection-start-column="40" selection-end-line="178" selection-end-column="40" />
+              <folding>
+                <element signature="e#1029#1046#0" expanded="true" />
+                <element signature="e#1659#1660#0" expanded="true" />
+                <element signature="e#1701#1702#0" expanded="true" />
+                <element signature="e#5582#5583#0" expanded="true" />
+                <element signature="e#5624#5625#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -224,69 +250,36 @@
       <file leaf-file-name="GNetworkClientReceiver.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GNetworkClientReceiver.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="374">
-              <caret line="44" column="27" lean-forward="false" selection-start-line="44" selection-start-column="27" selection-end-line="44" selection-end-column="27" />
+            <state relative-caret-position="238">
+              <caret line="173" column="40" lean-forward="false" selection-start-line="173" selection-start-column="40" selection-end-line="173" selection-end-column="40" />
               <folding>
-                <element signature="e#5012#5013#0" expanded="true" />
-                <element signature="e#5045#5046#0" expanded="true" />
+                <element signature="e#857#867#0" expanded="true" />
+                <element signature="e#1035#1050#0" expanded="true" />
+                <element signature="e#1115#1121#0" expanded="true" />
+                <element signature="e#1254#1269#0" expanded="true" />
+                <element signature="e#1730#1731#0" expanded="true" />
+                <element signature="e#1773#1774#0" expanded="true" />
+                <element signature="e#1825#1826#0" expanded="true" />
+                <element signature="e#1870#1871#0" expanded="true" />
+                <element signature="e#1907#1908#0" expanded="true" />
+                <element signature="e#1955#1956#0" expanded="true" />
+                <element signature="e#6055#6056#0" expanded="true" />
+                <element signature="e#6097#6098#0" expanded="true" />
+                <element signature="e#6569#6570#0" expanded="true" />
+                <element signature="e#6625#6626#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GNetworkClient.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GNetworkClient.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="459">
-              <caret line="49" column="16" lean-forward="false" selection-start-line="49" selection-start-column="16" selection-end-line="49" selection-end-column="16" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Synchronizer.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/Synchronizer.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="714">
-              <caret line="48" column="41" lean-forward="false" selection-start-line="48" selection-start-column="41" selection-end-line="48" selection-end-column="41" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Logger.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Logger.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/Logger.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="391">
-              <caret line="41" column="33" lean-forward="false" selection-start-line="41" selection-start-column="33" selection-end-line="41" selection-end-column="33" />
+            <state relative-caret-position="289">
+              <caret line="79" column="32" lean-forward="false" selection-start-line="79" selection-start-column="32" selection-end-line="79" selection-end-column="32" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="AndroidManifest.xml" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/app/src/main/AndroidManifest.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="425">
-              <caret line="25" column="49" lean-forward="true" selection-start-line="25" selection-start-column="49" selection-end-line="25" selection-end-column="49" />
-              <folding />
-            </state>
-          </provider>
-          <provider editor-type-id="android-manifest">
-            <state />
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="GNetworkClientSender.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GNetworkClientSender.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="408">
-              <caret line="46" column="34" lean-forward="false" selection-start-line="46" selection-start-column="34" selection-end-line="46" selection-end-column="34" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -2412,24 +2405,24 @@
         <option value="$PROJECT_DIR$/app/build.gradle" />
         <option value="$PROJECT_DIR$/settings.gradle" />
         <option value="$PROJECT_DIR$/build.gradle" />
-        <option value="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GNetworkClient.java" />
         <option value="$PROJECT_DIR$/app/src/main/res/layout/graphics_main.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GraphicsActivity.java" />
         <option value="$USER_HOME$/Android/Sdk/platforms/android-10/android.jar!/java/io/DataInputStream.class" />
-        <option value="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GraphicsClientActivity.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/Synchronizer.java" />
+        <option value="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" />
+        <option value="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GNetworkClient.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GraphicsClientActivity.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GNetworkClientReceiver.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GNetworkClientSender.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/Logger.java" />
-        <option value="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="1200" />
-    <option name="y" value="745" />
+    <option name="y" value="748" />
     <option name="width" value="1920" />
-    <option name="height" value="1175" />
+    <option name="height" value="1172" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -2558,9 +2551,9 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
       <pane id="Scratches" />
+      <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -2743,7 +2736,8 @@
       <option name="DEEP_LINK" value="" />
       <option name="ACTIVITY_CLASS" value="" />
       <method>
-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1513939262831" />
+        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1515162157793" />
       </method>
     </configuration>
     <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Instrumented Tests">
@@ -2790,7 +2784,8 @@
         <option name="ADVANCED_PROFILING_ENABLED" value="false" />
       </Profilers>
       <method>
-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1513939262831" />
+        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1515162157793" />
       </method>
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
@@ -2972,7 +2967,8 @@
       <option name="DEEP_LINK" value="" />
       <option name="ACTIVITY_CLASS" value="" />
       <method>
-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1513939262834" />
+        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1515162157795" />
       </method>
     </configuration>
     <list size="6">
@@ -3039,7 +3035,14 @@
       <option name="project" value="LOCAL" />
       <updated>1513879919937</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="logging pls">
+      <created>1513939267881</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1513939267881</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -3057,7 +3060,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1200" y="745" width="1920" height="1175" extended-state="6" />
+    <frame x="1200" y="748" width="1920" height="1172" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Android Profiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -3070,18 +3073,18 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.30945557" sideWeight="0.5149413" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295129" sideWeight="0.48932764" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295129" sideWeight="0.49786553" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3285578" sideWeight="0.49573106" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Logcat" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3285578" sideWeight="0.49786553" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3285578" sideWeight="0.49573106" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Logcat" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.4281609" sideWeight="0.49786553" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Captures" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.30945557" sideWeight="0.68569905" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17929563" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1670224" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2353255" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2497332" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Device File Explorer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -3133,7 +3136,8 @@
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <MESSAGE value="usability modifications" />
     <MESSAGE value="synchronizer thread" />
-    <option name="LAST_COMMIT_MESSAGE" value="synchronizer thread" />
+    <MESSAGE value="logging pls" />
+    <option name="LAST_COMMIT_MESSAGE" value="logging pls" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -3147,41 +3151,35 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
           <caret line="41" column="20" lean-forward="false" selection-start-line="41" selection-start-column="20" selection-end-line="41" selection-end-column="20" />
-          <folding>
-            <element signature="e#1423#1431#0" expanded="true" />
-            <element signature="e#3063#3230#0" expanded="true" />
-            <element signature="e#3229#3230#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/graphics.xml">
+      <provider selected="true" editor-type-id="android-designer2">
+        <state />
+      </provider>
       <provider editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
-      <provider selected="true" editor-type-id="android-designer2">
-        <state />
-      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/graphics_main.xml">
+      <provider editor-type-id="android-designer2">
+        <state />
+      </provider>
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="221">
           <caret line="13" column="27" lean-forward="false" selection-start-line="13" selection-start-column="27" selection-end-line="13" selection-end-column="27" />
-          <folding />
         </state>
-      </provider>
-      <provider editor-type-id="android-designer2">
-        <state />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/build.gradle">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="425">
           <caret line="25" column="13" lean-forward="false" selection-start-line="25" selection-start-column="13" selection-end-line="25" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3190,7 +3188,8 @@
         <state relative-caret-position="680">
           <caret line="50" column="43" lean-forward="true" selection-start-line="50" selection-start-column="43" selection-end-line="50" selection-end-column="43" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#3087#3088#0" expanded="false" />
+            <element signature="e#3120#3121#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -3207,7 +3206,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="378">
           <caret line="21" column="13" lean-forward="false" selection-start-line="21" selection-start-column="13" selection-end-line="21" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3223,7 +3221,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="378">
           <caret line="21" column="13" lean-forward="false" selection-start-line="21" selection-start-column="13" selection-end-line="21" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3239,7 +3236,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="378">
           <caret line="21" column="13" lean-forward="false" selection-start-line="21" selection-start-column="13" selection-end-line="21" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3283,7 +3279,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="378">
           <caret line="21" column="13" lean-forward="false" selection-start-line="21" selection-start-column="13" selection-end-line="21" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3327,7 +3322,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="378">
           <caret line="21" column="13" lean-forward="false" selection-start-line="21" selection-start-column="13" selection-end-line="21" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3379,7 +3373,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="378">
           <caret line="21" column="13" lean-forward="false" selection-start-line="21" selection-start-column="13" selection-end-line="21" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3417,7 +3410,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="425">
           <caret line="25" column="13" lean-forward="false" selection-start-line="25" selection-start-column="13" selection-end-line="25" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3430,33 +3422,33 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/graphics.xml">
+      <provider selected="true" editor-type-id="android-designer2">
+        <state />
+      </provider>
       <provider editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
-      <provider selected="true" editor-type-id="android-designer2">
-        <state />
-      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/graphics_main.xml">
+      <provider editor-type-id="android-designer2">
+        <state />
+      </provider>
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="221">
           <caret line="13" column="27" lean-forward="false" selection-start-line="13" selection-start-column="27" selection-end-line="13" selection-end-column="27" />
-          <folding />
         </state>
-      </provider>
-      <provider editor-type-id="android-designer2">
-        <state />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GraphicsActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
+        <state relative-caret-position="476">
           <caret line="38" column="69" lean-forward="false" selection-start-line="38" selection-start-column="69" selection-end-line="38" selection-end-column="69" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#3087#3088#0" expanded="false" />
+            <element signature="e#3120#3121#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -3465,7 +3457,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="750">
           <caret line="65" column="21" lean-forward="false" selection-start-line="65" selection-start-column="21" selection-end-line="65" selection-end-column="21" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3473,44 +3464,23 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="223">
           <caret line="63" column="22" lean-forward="false" selection-start-line="63" selection-start-column="22" selection-end-line="63" selection-end-column="22" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GNetworkClientReceiver.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="44" column="27" lean-forward="false" selection-start-line="44" selection-start-column="27" selection-end-line="44" selection-end-column="27" />
-          <folding>
-            <element signature="e#5012#5013#0" expanded="true" />
-            <element signature="e#5045#5046#0" expanded="true" />
-          </folding>
-        </state>
+    <entry file="file://$PROJECT_DIR$/app/src/main/AndroidManifest.xml">
+      <provider editor-type-id="android-manifest">
+        <state />
       </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GraphicsClientActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="94" column="35" lean-forward="false" selection-start-line="94" selection-start-column="35" selection-end-line="94" selection-end-column="35" />
-          <folding>
-            <element signature="e#1423#1431#0" expanded="true" />
-            <element signature="e#3063#3230#0" expanded="true" />
-            <element signature="e#3229#3230#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GNetworkClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="459">
-          <caret line="49" column="16" lean-forward="false" selection-start-line="49" selection-start-column="16" selection-end-line="49" selection-end-column="16" />
+        <state relative-caret-position="170">
+          <caret line="10" column="53" lean-forward="false" selection-start-line="10" selection-start-column="53" selection-end-line="10" selection-end-column="53" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/Synchronizer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="714">
+        <state relative-caret-position="816">
           <caret line="48" column="41" lean-forward="false" selection-start-line="48" selection-start-column="41" selection-end-line="48" selection-end-column="41" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -3518,33 +3488,73 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GNetworkClientReceiver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="173" column="40" lean-forward="false" selection-start-line="173" selection-start-column="40" selection-end-line="173" selection-end-column="40" />
+          <folding>
+            <element signature="e#857#867#0" expanded="true" />
+            <element signature="e#1035#1050#0" expanded="true" />
+            <element signature="e#1115#1121#0" expanded="true" />
+            <element signature="e#1254#1269#0" expanded="true" />
+            <element signature="e#1730#1731#0" expanded="true" />
+            <element signature="e#1773#1774#0" expanded="true" />
+            <element signature="e#1825#1826#0" expanded="true" />
+            <element signature="e#1870#1871#0" expanded="true" />
+            <element signature="e#1907#1908#0" expanded="true" />
+            <element signature="e#1955#1956#0" expanded="true" />
+            <element signature="e#6055#6056#0" expanded="true" />
+            <element signature="e#6097#6098#0" expanded="true" />
+            <element signature="e#6569#6570#0" expanded="true" />
+            <element signature="e#6625#6626#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GNetworkClientSender.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="46" column="34" lean-forward="false" selection-start-line="46" selection-start-column="34" selection-end-line="46" selection-end-column="34" />
+        <state relative-caret-position="357">
+          <caret line="178" column="40" lean-forward="false" selection-start-line="178" selection-start-column="40" selection-end-line="178" selection-end-column="40" />
+          <folding>
+            <element signature="e#1029#1046#0" expanded="true" />
+            <element signature="e#1659#1660#0" expanded="true" />
+            <element signature="e#1701#1702#0" expanded="true" />
+            <element signature="e#5582#5583#0" expanded="true" />
+            <element signature="e#5624#5625#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GNetworkClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="952">
+          <caret line="83" column="39" lean-forward="false" selection-start-line="83" selection-start-column="39" selection-end-line="83" selection-end-column="39" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#2245#2246#0" expanded="true" />
+            <element signature="e#2290#2291#0" expanded="true" />
+            <element signature="e#2445#3351#0" expanded="true" />
+            <element signature="e#3350#3351#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/GraphicsClientActivity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-663">
+          <caret line="129" column="5" lean-forward="false" selection-start-line="129" selection-start-column="5" selection-end-line="129" selection-end-column="5" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/edu/cmu/cs/cloudlet/android/application/graphics/Logger.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="391">
-          <caret line="41" column="33" lean-forward="false" selection-start-line="41" selection-start-column="33" selection-end-line="41" selection-end-column="33" />
+        <state relative-caret-position="289">
+          <caret line="79" column="32" lean-forward="false" selection-start-line="79" selection-start-column="32" selection-end-line="79" selection-end-column="32" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/AndroidManifest.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="25" column="49" lean-forward="true" selection-start-line="25" selection-start-column="49" selection-end-line="25" selection-end-column="49" />
-          <folding />
-        </state>
-      </provider>
-      <provider editor-type-id="android-manifest">
-        <state />
       </provider>
     </entry>
   </component>

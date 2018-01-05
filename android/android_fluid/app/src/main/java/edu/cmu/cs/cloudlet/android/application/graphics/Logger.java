@@ -53,13 +53,32 @@ public class Logger implements Runnable {
         t.start();
     }
 
-    public void stop() throws InterruptedException {
+    private void writeLogToFile(Log l) {
+        StringBuilder s = new StringBuilder();
+        s.append(l.timestamp);
+        s.append(",");
+        s.append(l.seq_id);
+        s.append(",");
+        s.append(l.size);
+        s.append("\n");
+        try {
+            file.write(s.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+            exit(-1);
+        }
+    }
+
+    public void stop() throws InterruptedException, IOException {
         synchronized (mtx) {
             running = false;
         }
-
         t.join(100);
-        ;
+        Object logs[] = q.toArray();
+        for (Object l : logs)
+            this.writeLogToFile((Log) l);
+        file.write("# LOGS END\n");
+        file.close();
     }
 
     @Override
@@ -79,21 +98,7 @@ public class Logger implements Runnable {
                 }
                 continue;
             }
-
-            Log l = q.poll();
-            StringBuilder s = new StringBuilder();
-            s.append(l.timestamp);
-            s.append(",");
-            s.append(l.seq_id);
-            s.append(",");
-            s.append(l.size);
-            s.append("\n");
-            try {
-                file.write(s.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
-                exit(-1);
-            }
+            this.writeLogToFile(q.poll());
         }
 
     }

@@ -171,7 +171,11 @@ public class GNetworkClientSender extends Thread {
                 this.networkWriter.close();
             if (this.mClientSocket != null)
                 this.mClientSocket.close();
+            if (this.logger != null)
+                this.logger.stop();
         } catch (IOException e) {
+            Log.e("krha", e.toString());
+        } catch (InterruptedException e) {
             Log.e("krha", e.toString());
         }
         Log.d("krha", "Socket Connection Closed");
