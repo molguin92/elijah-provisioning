@@ -44,7 +44,7 @@ public class GNetworkClientSender extends Thread {
 
     public GNetworkClientSender(Context context, Handler handler) {
         try {
-            logger = new Logger("sender");
+            logger = new Logger("client_out");
             logger.start();
         } catch (IOException e) {
             e.printStackTrace();

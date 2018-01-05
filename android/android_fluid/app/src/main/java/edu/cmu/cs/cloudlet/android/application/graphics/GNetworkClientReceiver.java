@@ -41,7 +41,7 @@ public class GNetworkClientReceiver extends Thread {
 
     public GNetworkClientReceiver(DataInputStream dataInputStream, Handler mHandler) {
         try {
-            logger = new Logger("receiver");
+            logger = new Logger("client_in");
             logger.start();
         } catch (IOException e) {
             e.printStackTrace();
