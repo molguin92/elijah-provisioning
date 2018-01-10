@@ -8,6 +8,7 @@ import android.util.Log;
 
 import java.io.*;
 import java.net.*;
+import java.util.Date;
 import java.util.concurrent.*;
 
 public class Synchronizer implements Runnable {
@@ -45,9 +46,10 @@ public class Synchronizer implements Runnable {
                 }
 
                 incoming.readLong(); // wait for ping
-                time = System.currentTimeMillis();
+                //time = System.currentTimeMillis();
+                time = (new Date()).getTime();
                 outgoing.writeLong(time);
-                Thread.sleep(25);
+                // Thread.sleep(25);
             }
 
             socket.close();

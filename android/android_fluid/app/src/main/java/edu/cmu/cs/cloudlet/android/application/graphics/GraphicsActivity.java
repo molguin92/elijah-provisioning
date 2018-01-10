@@ -13,6 +13,7 @@ import android.widget.EditText;
 import edu.cmu.cs.cloudlet.android.R;
 
 public class GraphicsActivity extends Activity {
+    // protected static final String CLOUDLET_IP = "192.168.1.1";
     protected static final String CLOUDLET_IP = "130.237.43.83";
     //	protected static final String AMAZON_EAST_IP = "23.21.103.194";
 //	protected static final String AMAZON_WEST_IP = "184.169.142.70";
