@@ -115,6 +115,7 @@ public class GNetworkClientSender extends Thread {
                 GNetworkMessage msg = commandQueue.remove(0);
                 try {
                     float[] accData = msg.getAccData();
+                    int prev_size = networkWriter.size();
                     networkWriter.writeInt(this.accIndex);
                     networkWriter.writeInt(this.receiver.getLastFrameID());
                     networkWriter.writeFloat(accData[0]);
@@ -123,8 +124,7 @@ public class GNetworkClientSender extends Thread {
                     long time = System.currentTimeMillis();
                     networkWriter.flush();
                     this.receiver.recordSentTime(this.accIndex, time);
-                    int size = (2 * (Integer.SIZE / 8)) + (2 * (Float.SIZE / 8));
-                    logger.logMessage(this.accIndex, size);
+                    logger.logMessage(this.accIndex, networkWriter.size() - prev_size);
                     this.accIndex++;
                 } catch (IOException e) {
                     e.printStackTrace();
