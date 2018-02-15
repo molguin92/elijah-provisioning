@@ -2,6 +2,7 @@ package edu.cmu.cs.cloudlet.android.application.graphics;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -9,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -35,7 +37,11 @@ public class GNetworkClientSender extends Thread {
     private GNetworkClientReceiver receiver;
     private Vector<GNetworkMessage> commandQueue = new Vector<GNetworkMessage>();        //thread safe
     private Socket mClientSocket;
-    private DataOutputStream networkWriter;
+
+    // streams
+    private OutputStream networkWriter;
+    private ByteArrayOutputStream bytes_out;
+    private DataOutputStream out_stream;
 
     private GNetworkClient connector;
     private int messageCounter = 0;
@@ -68,7 +74,12 @@ public class GNetworkClientSender extends Thread {
         try {
             mClientSocket = new Socket();
             mClientSocket.connect(new InetSocketAddress(this.Server_ipAddress, this.Server_port), 10 * 1000);
-            networkWriter = new DataOutputStream(mClientSocket.getOutputStream());
+
+            // streams
+            networkWriter = mClientSocket.getOutputStream();
+            bytes_out = new ByteArrayOutputStream(16);
+            out_stream = new DataOutputStream(bytes_out);
+
             receiver = new GNetworkClientReceiver(new DataInputStream(mClientSocket.getInputStream()), mHandler);
         } catch (UnknownHostException e) {
             Log.e("krha", e.toString());
@@ -115,16 +126,24 @@ public class GNetworkClientSender extends Thread {
                 GNetworkMessage msg = commandQueue.remove(0);
                 try {
                     float[] accData = msg.getAccData();
-                    int prev_size = networkWriter.size();
-                    networkWriter.writeInt(this.accIndex);
-                    networkWriter.writeInt(this.receiver.getLastFrameID());
-                    networkWriter.writeFloat(accData[0]);
-                    networkWriter.writeFloat(accData[1]);
+
+                    out_stream.flush();
+                    bytes_out.reset();
+
+                    out_stream.writeInt(this.accIndex);
+                    out_stream.writeInt(this.receiver.getLastFrameID());
+                    out_stream.writeFloat(accData[0]);
+                    out_stream.writeFloat(accData[1]);
+                    out_stream.flush();
 
                     long time = System.currentTimeMillis();
-                    networkWriter.flush();
+                    byte[] data = bytes_out.toByteArray();
                     this.receiver.recordSentTime(this.accIndex, time);
-                    logger.logMessage(this.accIndex, networkWriter.size() - prev_size);
+                    logger.logTrace(this.accIndex, data.length, data);
+
+                    networkWriter.write(data);
+                    networkWriter.flush();
+
                     this.accIndex++;
                 } catch (IOException e) {
                     e.printStackTrace();

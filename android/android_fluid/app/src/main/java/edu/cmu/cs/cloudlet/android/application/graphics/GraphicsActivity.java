@@ -14,7 +14,7 @@ import edu.cmu.cs.cloudlet.android.R;
 
 public class GraphicsActivity extends Activity {
     // protected static final String CLOUDLET_IP = "192.168.1.1";
-    protected static final String CLOUDLET_IP = "130.237.43.83";
+    protected static final String CLOUDLET_IP = "128.237.202.64";
     //	protected static final String AMAZON_EAST_IP = "23.21.103.194";
 //	protected static final String AMAZON_WEST_IP = "184.169.142.70";
 //	protected static final String AMAZON_EU_IP = "176.34.100.63";
