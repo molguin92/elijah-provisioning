@@ -27,6 +27,7 @@ public class Logger implements Runnable {
     private class Trace {
         long timestamp;
         int size;
+        int seq_id;
         byte[] data;
     }
 
@@ -100,6 +101,7 @@ public class Logger implements Runnable {
 
         try {
             trace_file.writeInt(dt);
+            trace_file.writeInt(t.seq_id);
             trace_file.writeInt(t.size);
             trace_file.write(t.data);
         } catch (IOException e) {
@@ -177,6 +179,7 @@ public class Logger implements Runnable {
         t.timestamp = timestamp;
         t.size = size;
         t.data = data;
+        t.seq_id = seq;
         trace_q.offer(t);
     }
 }
