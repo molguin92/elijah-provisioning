@@ -1,28 +1,12 @@
 package edu.cmu.cs.cloudlet.android.application.graphics;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Vector;
-
-import org.apache.http.util.ByteArrayBuffer;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import edu.cmu.cs.cloudlet.android.R;
-
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
-import android.util.TypedValue;
-import android.view.View;
-import android.widget.TextView;
+
+import edu.cmu.cs.cloudlet.android.R;
 
 public class GNetworkClient {
 	public static final int CONNECTION_ERROR = 1;

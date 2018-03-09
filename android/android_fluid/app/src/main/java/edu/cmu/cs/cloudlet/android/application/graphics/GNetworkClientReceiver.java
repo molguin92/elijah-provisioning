@@ -1,24 +1,17 @@
 package edu.cmu.cs.cloudlet.android.application.graphics;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-
-import org.apache.http.util.ByteArrayBuffer;
-import org.json.JSONException;
-import org.teleal.common.util.ByteArray;
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.TreeMap;
 
 public class GNetworkClientReceiver extends Thread {
 	private Handler mHandler;

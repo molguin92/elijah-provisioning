@@ -5,88 +5,100 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:textSize = "25sp"
-        android:gravity="center_vertical"
-        android:layout_weight="1"
-        android:text="Cloudlet" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center">
 
-    <Button
-        android:id="@+id/testCloudlet"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="bottom"
-        android:layout_weight="1"
-        android:text="Start Cloudlet" >
-    </Button>
 
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:textSize = "25sp"
-        android:gravity="center_vertical"
-        android:layout_weight="1"
-        android:text="Amazon East" />
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textSize = "25sp"
+            android:gravity="center_vertical"
+            android:layout_weight="1"
+            android:text="Cloudlet" />
 
-    <Button
-        android:id="@+id/testEast"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="bottom"
-        android:layout_weight="1"
-        android:text="Start Amazon East" >
-    </Button>
-    
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:textSize = "25sp"
-        android:gravity="center_vertical"
-        android:layout_weight="1"
-        android:text="Amazon West" />
-    
-    <Button
-        android:id="@+id/testWest"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="bottom"
-        android:layout_weight="1"
-        android:text="Start Amazon West" >
-    </Button>
-    
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:textSize = "25sp"
-        android:gravity="center_vertical"
-        android:layout_weight="1"
-        android:text="Amazon EU" />
-    
-    <Button
-        android:id="@+id/testEU"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="bottom"
-        android:layout_weight="1"
-        android:text="Start Amazon EU" >
-    </Button>
+        <Button
+            android:id="@+id/testCloudlet"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_weight="1"
+            android:text="Start Cloudlet" >
+        </Button>
 
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:textSize = "25sp"
-        android:gravity="center_vertical"
-        android:layout_weight="1"
-        android:text="Amazon Asia" />
-    
-    <Button
-        android:id="@+id/testAsia"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="bottom"
-        android:layout_weight="1"
-        android:text="Start Amazon Asia" >
-    </Button>
+    </LinearLayout>
+
+    <!--
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:textSize = "25sp"
+            android:gravity="center_vertical"
+            android:layout_weight="1"
+            android:text="Amazon East" />
+
+        <Button
+            android:id="@+id/testEast"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="bottom"
+            android:layout_weight="1"
+            android:text="Start Amazon East" >
+        </Button>
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:textSize = "25sp"
+            android:gravity="center_vertical"
+            android:layout_weight="1"
+            android:text="Amazon West" />
+
+        <Button
+            android:id="@+id/testWest"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="bottom"
+            android:layout_weight="1"
+            android:text="Start Amazon West" >
+        </Button>
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:textSize = "25sp"
+            android:gravity="center_vertical"
+            android:layout_weight="1"
+            android:text="Amazon EU" />
+
+        <Button
+            android:id="@+id/testEU"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="bottom"
+            android:layout_weight="1"
+            android:text="Start Amazon EU" >
+        </Button>
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:textSize = "25sp"
+            android:gravity="center_vertical"
+            android:layout_weight="1"
+            android:text="Amazon Asia" />
+
+        <Button
+            android:id="@+id/testAsia"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="bottom"
+            android:layout_weight="1"
+            android:text="Start Amazon Asia" >
+        </Button>
+        -->
+
 </LinearLayout>
