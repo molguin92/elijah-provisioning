@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python
 #
 # Cloudlet Infrastructure for Mobile Computing
 #
@@ -26,49 +26,64 @@ import socket
 import time
 import threading
 import select
+import zipfile
 from optparse import OptionParser
 from pprint import pprint
 
-# import msgpack
-import msgpack
+if os.path.exists("../elijah") is True:
+    sys.path.insert(0, "../")
+try:
+    from elijah.provisioning import msgpack
+except ImportError as e:
+    import msgpack
 
 
 class Protocol(object):
     #
     # Command List "command": command_number
     #
-    KEY_COMMAND                 = "command"
+    KEY_COMMAND = "command"
     # client -> server
-    MESSAGE_COMMAND_SEND_META           = 0x11
-    MESSAGE_COMMAND_SEND_OVERLAY        = 0x12
-    MESSAGE_COMMAND_FINISH              = 0x13
-    MESSAGE_COMMAND_GET_RESOURCE_INFO   = 0x14
-    MESSAGE_COMMAND_SESSION_CREATE      = 0x15
-    MESSAGE_COMMAND_SESSION_CLOSE       = 0x16
+    MESSAGE_COMMAND_SEND_META = 0x11
+    MESSAGE_COMMAND_SEND_OVERLAY = 0x12
+    MESSAGE_COMMAND_SEND_OVERLAY_URL = 0x17
+
+    MESSAGE_COMMAND_FINISH = 0x13
+    MESSAGE_COMMAND_GET_RESOURCE_INFO = 0x14
+    MESSAGE_COMMAND_SESSION_CREATE = 0x15
+    MESSAGE_COMMAND_SESSION_CLOSE = 0x16
     # server -> client as return
-    MESSAGE_COMMAND_SUCCESS             = 0x01
-    MESSAGE_COMMAND_FAIELD              = 0x02
+    MESSAGE_COMMAND_SUCCESS = 0x01
+    MESSAGE_COMMAND_FAIELD = 0x02
     # server -> client as command
-    MESSAGE_COMMAND_ON_DEMAND           = 0x03
-    MESSAGE_COMMAND_SYNTHESIS_DONE      = 0x04
+    MESSAGE_COMMAND_ON_DEMAND = 0x03
+    MESSAGE_COMMAND_SYNTHESIS_DONE = 0x04
 
     #
     # other keys
     #
-    KEY_ERROR                   = "error"
-    KEY_META_SIZE               = "meta_size"
-    KEY_REQUEST_SEGMENT         = "blob_uri"
-    KEY_REQUEST_SEGMENT_SIZE    = "blob_size"
-    KEY_FAILED_REASON           = "reasons"
-    KEY_PAYLOAD                 = "payload"
-    KEY_SESSION_ID             = "session_id"
-    KEY_REQUESTED_COMMAND       = "requested_command"
+    KEY_ERROR = "error"
+    KEY_META_SIZE = "meta_size"
+    KEY_REQUEST_SEGMENT = "blob_uri"
+    KEY_REQUEST_SEGMENT_SIZE = "blob_size"
+    KEY_FAILED_REASON = "reasons"
+    KEY_PAYLOAD = "payload"
+    KEY_SESSION_ID = "session_id"
+    KEY_REQUESTED_COMMAND = "requested_command"
+    KEY_OVERLAY_URL = "overlay_url"
 
     # synthesis option
-    KEY_SYNTHESIS_OPTION        = "synthesis_option"
+    KEY_SYNTHESIS_OPTION = "synthesis_option"
     SYNTHESIS_OPTION_DISPLAY_VNC = "option_display_vnc"
     SYNTHESIS_OPTION_EARLY_START = "option_early_start"
     SYNTHESIS_OPTION_SHOW_STATISTICS = "option_show_statistics"
+
+
+def default_app_function():
+    while True:
+        user_input = raw_input("type 'q' to quit : ")
+        if user_input is not None and user_input.strip() == 'q':
+            break
 
 
 class ClientError(Exception):
@@ -80,18 +95,40 @@ class Client(object):
     RET_SUCCESS = 1
     CLOUDLET_PORT = 8021
 
-    def __init__(self, ip, port, overlay_path, app_function=None, synthesis_option=dict()):
+    def __init__(self, ip, port, overlay_file=None, overlay_url=None,
+                 app_function=default_app_function, synthesis_option=dict()):
+        '''
+        Need either overlay_file or overlay_url
+        @param overlay_file: file path to the VM overlay meta
+        @praram overlay_url: URL for the VM overlay
+        '''
         self.ip = ip
         self.port = port
-        self.overlay_path = overlay_path
+        self.overlay_file = overlay_file
+        self.overlay_url = overlay_url
         self.app_function = app_function
+        self.app_thread = None
+        if self.app_function is not None:
+            self.app_thread = ApplicationThread(self.app_function)
         self.synthesis_option = synthesis_option or dict()
         self.time_dict = dict()
 
-        if os.path.exists(self.overlay_path) is False:
-            msg = "Invalid overlay path: %s\n" % self.overlay_path
+        if self.overlay_url is None and self.overlay_file is None:
+            msg = "Need either overlay file or overlay URL"
             sys.stderr.write(msg)
             raise ClientError(msg)
+        if self.overlay_url is not None and self.overlay_file is not None:
+            msg = "Need either overlay file or overlay URL"
+            sys.stderr.write(msg)
+            raise ClientError(msg)
+        if self.overlay_file is not None and\
+                (os.path.exists(self.overlay_file) is False):
+            msg = "Invalid overlay path: %s\n" % self.overlay_file
+            sys.stderr.write(msg)
+            raise ClientError(msg)
+
+        if self.overlay_file is not None:
+            self.is_zip_contained = self._is_zip_contained(self.overlay_file)
 
         # get session
         self.session_id = Client.associate_with_cloudlet(ip, port)
@@ -100,8 +137,76 @@ class Client(object):
             sys.stderr.write(msg)
             raise ClientError(msg)
 
+    def _is_zip_contained(self, filepath):
+        abspath = os.path.abspath(filepath)
+        if os.path.exists(abspath) is False:
+            raise ClientError("Cannot access %s" % abspath)
+        if zipfile.is_zipfile(abspath) is False:
+            return False
+        # check validity of the zip file
+        zip_overlay = zipfile.ZipFile(abspath, 'r')
+        if "overlay-meta" not in zip_overlay.namelist():
+            # 'overlay-meta' is defined in configuration.py
+            # but use magic string to make this client independent
+            return False
+        return True
 
     def provisioning(self):
+        if self.overlay_file:
+            self.provisioning_from_file(self.session_id, self.overlay_file,
+                                        self.is_zip_contained)
+        elif self.overlay_url:
+            self.provisioning_from_url(self.session_id, self.overlay_url)
+
+    def provisioning_from_url(self, session_id, overlay_url):
+        # connection
+        self.start_provisioning_time = time.time()
+        sock = Client.connect(self.ip, self.port)
+        if not sock:
+            msg = "Cannot connect to Cloudlet (%s:%d)\n" % (self.ip, self.port)
+            sys.stderr.write(msg)
+            raise ClientError(msg)
+
+        # send
+        header_dict = {
+            Protocol.KEY_COMMAND: Protocol.MESSAGE_COMMAND_SEND_OVERLAY_URL,
+            Protocol.KEY_OVERLAY_URL: overlay_url,
+            Protocol.KEY_SESSION_ID: session_id,
+            }
+        if len(self.synthesis_option) > 0:
+            header_dict[Protocol.KEY_SYNTHESIS_OPTION] = self.synthesis_option
+        header = Client.encoding(header_dict)
+        sock.sendall(struct.pack("!I", len(header)))
+        sock.sendall(header)
+        self.time_dict['send_header_end_time'] = time.time()
+
+        # recv response
+        data = Client.recv_all(sock, 4)
+        msg_size = struct.unpack("!I", data)[0]
+        message = Client.decoding(Client.recv_all(sock, msg_size))
+        command = message.get(Protocol.KEY_COMMAND, None)
+        if command != Protocol.MESSAGE_COMMAND_SUCCESS:
+            msg = "Failed to send overlay URL: %s" %\
+                message.get(Protocol.KEY_FAILED_REASON, None)
+            sys.stderr.write("[ERROR] %s\n" % msg)
+            raise ClientError(msg)
+
+        # wait until VM synthesis finishes
+        data = Client.recv_all(sock, 4)
+        msg_size = struct.unpack("!I", data)[0]
+        message = Client.decoding(Client.recv_all(sock, msg_size))
+        command = message.get(Protocol.KEY_COMMAND)
+        if command == Protocol.MESSAGE_COMMAND_SYNTHESIS_DONE:
+            sys.stdout.write("Synthesis SUCCESS\n")
+            self.time_dict['synthesis_success_time'] = time.time()
+            # run user input waiting thread
+            # you can replace 'app_function' thread with your client method
+            if self.app_thread is not None:
+                self.app_thread.start()
+        else:
+            sys.stderr.write("Protocol error:%d\n" % (command))
+
+    def provisioning_from_file(self, session_id, overlay_file, is_zipped):
         # connection
         self.start_provisioning_time = time.time()
         sock = Client.connect(self.ip, self.port)
@@ -111,24 +216,23 @@ class Client(object):
             raise ClientError(msg)
 
         blob_request_list = list()
-
-        sys.stdout.write("Overlay Meta: %s\n" % (self.overlay_path))
-        sys.stdout.write("Session ID: %ld\n" % (self.session_id))
-        meta_info = Client.decoding(open(self.overlay_path, "r").read())
+        sys.stdout.write("Sending overlay meta")
+        sys.stdout.write("Session ID: %ld\n" % (session_id))
+        meta_data = self._read_overlay_meta(overlay_file, is_zipped)
 
         # send header
         header_dict = {
-            Protocol.KEY_COMMAND : Protocol.MESSAGE_COMMAND_SEND_META,
-            Protocol.KEY_META_SIZE : os.path.getsize(self.overlay_path),
-            Protocol.KEY_SESSION_ID: self.session_id,
+            Protocol.KEY_COMMAND: Protocol.MESSAGE_COMMAND_SEND_META,
+            Protocol.KEY_META_SIZE: len(meta_data),
+            Protocol.KEY_SESSION_ID: session_id,
             }
         if len(self.synthesis_option) > 0:
             header_dict[Protocol.KEY_SYNTHESIS_OPTION] = self.synthesis_option
         header = Client.encoding(header_dict)
         sock.sendall(struct.pack("!I", len(header)))
         sock.sendall(header)
-        sock.sendall(open(self.overlay_path, "r").read())
-        self.time_dict['send_end_time'] = time.time()
+        sock.sendall(meta_data)
+        self.time_dict['send_header_end_time'] = time.time()
 
         # recv header
         data = Client.recv_all(sock, 4)
@@ -138,19 +242,18 @@ class Client(object):
         command = message.get(Protocol.KEY_COMMAND, None)
         if command != Protocol.MESSAGE_COMMAND_SUCCESS:
             msg = "Failed to send overlay meta header: %s" %\
-                    message.get(Protocol.KEY_FAILED_REASON, None)
+                message.get(Protocol.KEY_FAILED_REASON, None)
             sys.stderr.write("[ERROR] %s\n" % msg)
             raise ClientError(msg)
 
-        self.app_thread = None
+        meta_info = Client.decoding(meta_data)
         total_blob_count = len(meta_info['overlay_files'])
         sent_blob_list = list()
         is_synthesis_finished = False
 
         while True:
-            inputready, outputready, exceptrdy = select.select([sock], [sock],
-                    [], 0.01)
-            for i in inputready:
+            i_ready, o_ready, e_ready = select.select([sock], [sock], [], 0.01)
+            for i in i_ready:
                 if i == sock:
                     data = sock.recv(4)
                     if not data:
@@ -166,24 +269,24 @@ class Client(object):
                         # RET_FAIL
                         sys.stderr.write("Synthesis Failed\n")
 
-                    if command ==  Protocol.MESSAGE_COMMAND_SYNTHESIS_DONE:
+                    if command == Protocol.MESSAGE_COMMAND_SYNTHESIS_DONE:
                         # RET_SUCCESS
                         sys.stdout.write("Synthesis SUCCESS\n")
-                        self.time_dict['recv_success_time'] = time.time()
+                        self.time_dict['synthesis_success_time'] = time.time()
                         is_synthesis_finished = True
-                        #run user input waiting thread
-                        if self.app_function is not None:
-                            self.app_thread = ApplicationThread(self.app_function)
+                        # run user input waiting thread
+                        if self.app_thread is not None:
                             self.app_thread.start()
                     elif command == Protocol.MESSAGE_COMMAND_ON_DEMAND:
                         # request blob
                         #sys.stdout.write("Request: %s\n" % (message.get(Protocol.KEY_REQUEST_SEGMENT)))
-                        blob_request_list.append(str(message.get(Protocol.KEY_REQUEST_SEGMENT)))
+                        blob_request_list.append(
+                            str(message.get(Protocol.KEY_REQUEST_SEGMENT)))
                     else:
                         sys.stderr.write("Protocol error:%d\n" % (command))
 
             # send data
-            for i in outputready:
+            for i in o_ready:
                 if (i == sock) and (len(sent_blob_list) < total_blob_count):
                     # check request list
                     requested_uri = None
@@ -194,66 +297,100 @@ class Client(object):
                     if requested_uri not in sent_blob_list:
                         sent_blob_list.append(requested_uri)
                     else:
-                        raise ClientError("sending duplicated blob: %s" % requested_uri)
+                        msg = "sending duplicated blob: %s" % requested_uri
+                        raise ClientError(msg)
 
-                    filename = os.path.basename(requested_uri)
-                    blob_path = os.path.join(os.path.dirname(self.overlay_path), filename)
+                    blob_name = os.path.basename(requested_uri)
+                    blob_size = self._get_overlay_blob_size(overlay_file,
+                                                            blob_name,
+                                                            is_zipped)
                     segment_info = {
-                            Protocol.KEY_COMMAND : Protocol.MESSAGE_COMMAND_SEND_OVERLAY,
-                            Protocol.KEY_REQUEST_SEGMENT : requested_uri,
-                            Protocol.KEY_REQUEST_SEGMENT_SIZE : os.path.getsize(blob_path),
-                            Protocol.KEY_SESSION_ID: self.session_id,
-                            }
+                        Protocol.KEY_COMMAND: Protocol.MESSAGE_COMMAND_SEND_OVERLAY,
+                        Protocol.KEY_REQUEST_SEGMENT: requested_uri,
+                        Protocol.KEY_REQUEST_SEGMENT_SIZE: blob_size,
+                        Protocol.KEY_SESSION_ID: session_id,
+                        }
 
                     # send close signal to cloudlet server
                     header = Client.encoding(segment_info)
                     sock.sendall(struct.pack("!I", len(header)))
                     sock.sendall(header)
-                    sock.sendall(open(blob_path, "rb").read())
+                    sock.sendall(self._read_overlay_blob(overlay_file,
+                                                         blob_name,
+                                                         is_zipped))
 
                     if len(sent_blob_list) == total_blob_count:
-                        self.time_dict['send_end_time'] = time.time()
+                        self.time_dict['send_header_end_time'] = time.time()
 
             # check condition
+            # sent all vm overlay
             if (len(sent_blob_list) == total_blob_count):
-                # sent all vm overlay
-                if (self.app_function is not None):
-                    # wait until application finishes
-                    if (self.app_thread is not None) and (self.app_thread.isAlive() is False):
-                        break
-                else:
-                    # No application is instantiated
-                    # wait until synthesis done
-                    if is_synthesis_finished == True:
-                        break
+                if is_synthesis_finished:
+                    break
 
+    '''
+    wrapper methods to cover different types of VM overlay,
+        1) a list of regular file
+        2) single file with zip container
+    eventually, we will only use zip container format
+    '''
+
+    def _read_overlay_meta(self, filepath, is_zipped):
+        if is_zipped is True:
+            zz = zipfile.ZipFile(filepath, "r")
+            # 'overlay-meta' is defined in configuration.py
+            # but use magic string to make this client independent
+            return zz.read("overlay-meta")
+        else:
+            return open(filepath, "r").read()
+
+    def _read_overlay_blob(self, filepath, blobname, is_zipped):
+        if is_zipped is True:
+            zz = zipfile.ZipFile(filepath, "r")
+            return zz.read(blobname)
+        else:
+            blob_path = os.path.join(os.path.dirname(filepath), blobname)
+            return open(blob_path, 'r').read()
+
+    def _get_overlay_blob_size(self, filepath, blobname, is_zipped):
+        if is_zipped is True:
+            zz = zipfile.ZipFile(filepath, "r")
+            return zz.getinfo(blobname).file_size
+        else:
+            blob_path = os.path.join(os.path.dirname(filepath), blobname)
+            return os.path.getsize(blob_path)
 
     def terminate(self):
+        # printout measurement
+        send_header_end = self.time_dict['send_header_end_time']
+        synthesis_end = self.time_dict['synthesis_success_time']
+        client_info = {
+            Protocol.KEY_COMMAND: Protocol.MESSAGE_COMMAND_FINISH,
+            Protocol.KEY_SESSION_ID: self.session_id,
+            'Header Transfer End at (s)': (
+                send_header_end -
+                self.start_provisioning_time),
+            'Synthesis Finishes at (s)': (
+                synthesis_end -
+                self.start_provisioning_time),
+            }
+        if self.app_function is not None:
+            self.app_thread.join()
+            self.time_dict.update(self.app_thread.time_dict)
+            app_start = self.time_dict.get('app_start', None)
+            app_end = self.time_dict.get('app_end', None)
+            client_info.update({
+                'App Start at (s)': (app_start-self.start_provisioning_time),
+                'App End at (s)': (app_end-self.start_provisioning_time)
+                })
+        pprint(client_info)
+
+        # send close signal to cloudlet server
         sock = Client.connect(self.ip, self.port)
         if not sock:
             msg = "Cannot connect to Cloudlet (%s:%d)\n" % (self.ip, self.port)
             sys.stderr.write(msg)
             raise ClientError(msg)
-
-        if self.app_function is not None and self.app_thread is not None:
-            self.app_thread.join()
-            self.time_dict.update(self.app_thread.time_dict)
-
-        send_end = self.time_dict['send_end_time']
-        recv_end = self.time_dict['recv_success_time']
-        app_start = self.time_dict['app_start']
-        app_end = self.time_dict['app_end']
-        client_info = {
-                Protocol.KEY_COMMAND : Protocol.MESSAGE_COMMAND_FINISH,
-                Protocol.KEY_SESSION_ID : self.session_id,
-                'Transfer End':(send_end-self.start_provisioning_time),
-                'Synthesis Success': (recv_end-self.start_provisioning_time),
-                'App Start': (app_start-self.start_provisioning_time),
-                'App End': (app_end-self.start_provisioning_time)
-                }
-        pprint(client_info)
-
-        # send close signal to cloudlet server
         header = Client.encoding(client_info)
         sock.sendall(struct.pack("!I", len(header)))
         sock.sendall(header)
@@ -271,7 +408,6 @@ class Client(object):
         if Client.disassociate(self.ip, self.port, self.session_id) is False:
             print "Failed to close session"
 
-
     @staticmethod
     def connect(ip, port):
         if not ip:
@@ -279,10 +415,10 @@ class Client(object):
         try:
             address = (ip, port)
             time_out = 10
-            #print "Connecting to (%s).." % str(address)
+            # print "Connecting to (%s).." % str(address)
             sock = socket.create_connection(address, time_out)
             sock.setblocking(True)
-        except socket.error as msg:
+        except socket.error as e:
             return None
         return sock
 
@@ -303,13 +439,13 @@ class Client(object):
 
     @staticmethod
     def associate_with_cloudlet(ip, port):
-        '''
+        """
         :param cloudlet_t: cloudlet_t instance that has ip_address of the cloudlet
         :type cloudlet_t: cloudlet_t
 
         :return: session id or -1 if it failed
         :rtype: long
-        '''
+        """
         sock = Client.connect(ip, port)
         if not sock:
             return Client.RET_FAILED
@@ -337,12 +473,12 @@ class Client(object):
 
     @staticmethod
     def disassociate(ip, port, session_id):
-        '''
+        """
         :param session_id: session_id that was returned when associated
         :type session_id: long
 
         :return: N/A
-        '''
+        """
         sock = Client.connect(ip, port)
         if not sock:
             return Client.RET_FAILED
@@ -369,6 +505,7 @@ class Client(object):
 
 
 class ApplicationThread(threading.Thread):
+
     def __init__(self, client_method):
         self.client_method = client_method
         threading.Thread.__init__(self, target=self.start_app)
@@ -383,38 +520,36 @@ class ApplicationThread(threading.Thread):
 def process_command_line(argv):
     global command_type
     global application_names
+    USAGE = "usage: ./%prog -s cloudlet_server_ip [-o overlay_file|-u overlay_url] [option]\n"
+    USAGE += "example) %prog -s localhost -u http://storage.findcloudlet.org/overlay.zip"
 
-    parser = OptionParser(usage="usage: ./cloudlet_client.py -o overlay_path [option]",
-            version="Desktop Client for Cloudlet")
-    parser.add_option(
-            '-o', '--overlay-path', action='store', type='string', dest='overlay_path',
-            help="Set overlay path (overlay meta path)")
-    parser.add_option(
-            '-s', '--server', action='store', type='string', dest='server_ip', \
-            default=None, help="Set cloudlet server's IP address")
-    parser.add_option(
-            '-d', '--display', action='store_false', dest='display_vnc', default=True,
-            help='Turn on VNC display of VM (Default True)')
-    parser.add_option(
-            '-e', '--early_start', action='store_true', dest='early_start', default=False,
-            help='Turn on early start mode for faster application execution (Default False)')
+    parser = OptionParser(usage=USAGE,
+                          version="Desktop Client for Cloudlet")
+    parser.add_option('-o', '--overlay-path', action='store', type='string',
+                      dest='overlay_file',
+                      help="Set overlay path (overlay meta path)")
+    parser.add_option('-u', '--overlay-url', action='store',
+                      type='string', dest='overlay_url', help="Set overlay URL")
+    parser.add_option('-s', '--server', action='store', type='string',
+                      dest='server_ip',
+                      default=None, help="Set cloudlet server's IP address")
+    parser.add_option('-d', '--display', action='store_false',
+                      dest='display_vnc', default=True,
+                      help='Turn on VNC display of VM (Default True)')
+    parser.add_option('-e', '--early_start', action='store_true',
+                      dest='early_start', default=False,
+                      help='Turn on early start mode for faster application execution (Default False)')
     settings, args = parser.parse_args(argv)
 
-    if settings.overlay_path == None:
-        parser.error("Need path to overlay-meta file")
+    if settings.overlay_file is None and settings.overlay_url is None:
+        parser.error("Need path or URL for the VM overlay")
     if (not settings.server_ip):
         message = "You need to specify Cloudlet ip(option -s)"
         parser.error(message)
     if not len(args) == 0:
-        parser.error('program takes no command-line arguments; "%s" ignored.' % (args,))
+        parser.error(
+            'program takes no command-line arguments; "%s" ignored.' % (args,))
     return settings, args
-
-
-def default_app_function():
-    while True:
-        user_input = raw_input("type 'q' to quit : ")
-        if user_input.strip() == 'q':
-            break;
 
 
 def main(argv=None):
@@ -432,13 +567,26 @@ def main(argv=None):
         sys.stderr.write(message)
         sys.exit(1)
 
-    client = Client(cloudlet_ip, port, settings.overlay_path,\
-            app_function=None, synthesis_option=synthesis_option)
+    if settings.overlay_file:
+        client = Client(cloudlet_ip,
+                        port,
+                        overlay_file=settings.overlay_file,
+                        app_function=default_app_function,
+                        synthesis_option=synthesis_option)
+    elif settings.overlay_url:
+        client = Client(cloudlet_ip,
+                        port,
+                        overlay_url=settings.overlay_url,
+                        app_function=default_app_function,
+                        synthesis_option=synthesis_option)
+
     try:
         client.provisioning()
+        client.terminate()
         sys.stdout.write("SUCCESS in Provisioning\n")
     except ClientError as e:
         sys.stderr.write(str(e))
+
     return 0
 
 

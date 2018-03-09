@@ -31,12 +31,12 @@ import shutil
 import threading
 
 import synthesis as synthesis
+from package import VMOverlayPackage
 from db.api import DBConnector
 from db.table_def import BaseVM, Session, OverlayVM
 from synthesis_protocol import Protocol as Protocol
-from upnp_server import UPnPServer, UPnPError
-from Configuration import Const as Cloudlet_Const
-from Configuration import Synthesis_Const as Synthesis_Const
+from configuration import Const as Cloudlet_Const
+from configuration import Synthesis_Const as Synthesis_Const
 import msgpack
 
 from pprint import pformat
@@ -152,7 +152,8 @@ class NetworkUtil(object):
 class NetworkStepThread(threading.Thread):
     MAX_REQUEST_SIZE = 1024*512 # 512 KB
 
-    def __init__(self, network_handler, overlay_urls, overlay_urls_size, demanding_queue, out_queue, time_queue, chunk_size):
+    def __init__(self, network_handler, overlay_urls, overlay_urls_size, 
+            demanding_queue, out_queue, time_queue, chunk_size):
         self.network_handler = network_handler
         self.read_stream = network_handler.rfile
         self.overlay_urls = overlay_urls
@@ -318,6 +319,90 @@ class DecompStepProc(Process):
                 counter, data_size))
 
 
+class URLFetchStep(threading.Thread):
+    MAX_REQUEST_SIZE = 1024*512 # 512 KB
+
+    def __init__(self, overlay_package, overlay_files, overlay_files_size, 
+            demanding_queue, out_queue, time_queue, chunk_size):
+        self.overlay_files = overlay_files
+        self.overlay_files_size = overlay_files_size
+        self.overlay_package = overlay_package
+        self.demanding_queue = demanding_queue
+        self.out_queue = out_queue
+        self.time_queue = time_queue
+        self.chunk_size = chunk_size
+        threading.Thread.__init__(self, target=self.receive_overlay_blobs)
+
+    def exception_handler(self):
+        self.out_queue.put(Synthesis_Const.ERROR_OCCURED)
+        self.time_queue.put({'start_time':-1, 'end_time':-1, "bw_mbps":0})
+
+    @wrap_process_fault
+    def receive_overlay_blobs(self):
+        total_read_size = 0
+        counter = 0
+        finished_url = dict()
+        out_of_order_count = 0
+        total_urls_count = len(self.overlay_files)
+        start_time = time.time()
+
+        while len(finished_url) < total_urls_count:
+            # find overlay blob for on-demand request
+            urgent_overlay_url = None
+            while not self.demanding_queue.empty():
+                # demanding_queue can have multiple same request
+                demanding_url = self.demanding_queue.get()
+                if (finished_url.get(demanding_url, False) == False):
+                    urgent_overlay_url = demanding_url
+                    break
+
+            requesting_overlay = None
+            if urgent_overlay_url != None:
+                requesting_overlay = urgent_overlay_url
+                out_of_order_count += 1
+                if requesting_overlay in self.overlay_files:
+                    self.overlay_files.remove(requesting_overlay)
+            else:
+                requesting_overlay = self.overlay_files.pop(0)
+
+            finished_url[requesting_overlay] = True
+            read_count = 0
+            for chunk in self.overlay_package.iter_blob(requesting_overlay, \
+                    self.chunk_size):
+                read_size = len(chunk)
+                if chunk:
+                    self.out_queue.put(chunk)
+                else:
+                    break
+                read_count += read_size
+
+            # request overlay blob
+            total_read_size += read_count
+
+        self.out_queue.put(Synthesis_Const.END_OF_FILE)
+        end_time = time.time()
+        time_delta = end_time-start_time
+
+        if time_delta > 0:
+            bw = total_read_size*8.0/time_delta/1024/1024
+        else:
+            bw = 1
+
+        self.time_queue.put({'start_time':start_time, 'end_time':end_time, "bw_mbps":bw})
+        LOG.info("[Transfer] out-of-order fetching : %d / %d == %5.2f %%" % \
+                (out_of_order_count, total_urls_count, \
+                100.0*out_of_order_count/total_urls_count))
+        try:
+            LOG.info("[Transfer] : (%s)~(%s)=(%s) (%d loop, %d bytes, %lf Mbps)" % \
+                    (start_time, end_time, (time_delta),\
+                    counter, total_read_size, \
+                    total_read_size*8.0/time_delta/1024/1024))
+        except ZeroDivisionError:
+            LOG.info("[Transfer] : (%s)~(%s)=(%s) (%d, %d)" % \
+                    (start_time, end_time, (time_delta),\
+                    counter, total_read_size))
+
+
 class SynthesisHandler(SocketServer.StreamRequestHandler):
     synthesis_option = {
             Protocol.SYNTHESIS_OPTION_DISPLAY_VNC : False,
@@ -328,7 +413,7 @@ class SynthesisHandler(SocketServer.StreamRequestHandler):
     def ret_fail(self, message):
         LOG.error("%s" % str(message))
         message = NetworkUtil.encoding({
-            Protocol.KEY_COMMAND : Protocol.MESSAGE_COMMAND_FAIELD,
+            Protocol.KEY_COMMAND : Protocol.MESSAGE_COMMAND_FAILED,
             Protocol.KEY_FAILED_REASON : message
             })
         message_size = struct.pack("!I", len(message))
@@ -524,7 +609,6 @@ class SynthesisHandler(SocketServer.StreamRequestHandler):
                     mem_access_list, disk_access_list)
         LOG.info("[SOCKET] waiting for client exit message")
 
-
     def _handle_finish(self, message):
         global session_resources
 
@@ -539,9 +623,180 @@ class SynthesisHandler(SocketServer.StreamRequestHandler):
             msg = "Deallocating resources for the Session (%s)" % session_id
             LOG.info(msg)
             session_resource.deallocate()
+            del session_resources[session_id]
 
         LOG.info("  - %s" % str(pformat(message)))
         self.ret_success(Protocol.MESSAGE_COMMAND_FINISH)
+
+    def _check_url_validity(self, message):
+        requested_base = None
+        metadata = None
+        try:
+            # check header option
+            client_syn_option = message.get(Protocol.KEY_SYNTHESIS_OPTION, None)
+            if client_syn_option != None and len(client_syn_option) > 0:
+                self.synthesis_option.update(client_syn_option)
+
+            # receive overlay meta file
+            overlay_url = message.get(Protocol.KEY_OVERLAY_URL)
+            overlay_package = VMOverlayPackage(overlay_url)
+            metadata = NetworkUtil.decoding(overlay_package.read_meta())
+            base_hashvalue = metadata.get(Cloudlet_Const.META_BASE_VM_SHA256, None)
+
+            # check base VM
+            for each_basevm in self.server.basevm_list:
+                if base_hashvalue == each_basevm.hash_value:
+                    LOG.info("New client request %s VM" \
+                            % (each_basevm.disk_path))
+                    requested_base = each_basevm.disk_path
+        except Exception, e:
+            pass
+        return [requested_base, metadata]
+
+    def _handle_synthesis_url(self, message):
+        LOG.info("\n\n----------------------- New Connection --------------")
+        # check overlay meta info
+        start_time = time.time()
+        header_start_time = time.time()
+        base_path, meta_info = self._check_url_validity(message)
+        if meta_info is None:
+            self.ret_fail("cannot access overlay URL")
+            return
+        if base_path is None:
+            self.ret_fail("No matching Base VM")
+            return
+        if meta_info.get(Cloudlet_Const.META_OVERLAY_FILES, None) is None:
+            self.ret_fail("No overlay files are listed")
+            return 
+
+        # return success get overlay URL
+        self.ret_success(Protocol.MESSAGE_COMMAND_SEND_META)
+        overlay_url = message.get(Protocol.KEY_OVERLAY_URL)
+        overlay_package = VMOverlayPackage(overlay_url)
+
+        # update DB
+        session_id = message.get(Protocol.KEY_SESSION_ID, None)
+        new_overlayvm = OverlayVM(session_id, base_path)
+        self.server.dbconn.add_item(new_overlayvm)
+
+        # start synthesis process
+        url_manager = Manager()
+        overlay_urls = url_manager.list()
+        overlay_urls_size = url_manager.dict()
+        for blob in meta_info[Cloudlet_Const.META_OVERLAY_FILES]:
+            url = blob[Cloudlet_Const.META_OVERLAY_FILE_NAME]
+            size = blob[Cloudlet_Const.META_OVERLAY_FILE_SIZE]
+            overlay_urls.append(url)
+            overlay_urls_size[url] = size
+        LOG.info("  - %s" % str(pformat(self.synthesis_option)))
+        LOG.info("  - Base VM     : %s" % base_path)
+        LOG.info("  - Blob count  : %d" % len(overlay_urls))
+        if overlay_urls == None:
+            self.ret_fail("No overlay info listed")
+            return
+        (base_diskmeta, base_mem, base_memmeta) = \
+                Cloudlet_Const.get_basepath(base_path, check_exist=True)
+        header_end_time = time.time()
+        LOG.info("Meta header processing time: %f" % (header_end_time-header_start_time))
+
+        # read overlay files
+        # create named pipe to convert queue to stream
+        time_transfer = Queue(); time_decomp = Queue();
+        time_delta = Queue(); time_fuse = Queue();
+        self.tmp_overlay_dir = tempfile.mkdtemp()
+        self.overlay_pipe = os.path.join(self.tmp_overlay_dir, 'overlay_pipe')
+        os.mkfifo(self.overlay_pipe)
+
+        # save overlay decomp result for measurement
+        temp_overlay_file = None
+        if self.synthesis_option.get(Protocol.SYNTHESIS_OPTION_SHOW_STATISTICS):
+            temp_overlay_filepath = os.path.join(self.tmp_overlay_dir, "overlay_file")
+            temp_overlay_file = open(temp_overlay_filepath, "w+b")
+
+        # overlay
+        demanding_queue = Queue()
+        download_queue = JoinableQueue()
+        download_process = URLFetchStep(overlay_package, overlay_urls, 
+                overlay_urls_size, demanding_queue, download_queue, 
+                time_transfer, Synthesis_Const.TRANSFER_SIZE, )
+        decomp_process = DecompStepProc(
+                download_queue, self.overlay_pipe, time_decomp, temp_overlay_file,
+                )
+        modified_img, modified_mem, self.fuse, self.delta_proc, self.fuse_proc = \
+                synthesis.recover_launchVM(base_path, meta_info, self.overlay_pipe, 
+                        log=sys.stdout, demanding_queue=demanding_queue)
+        self.delta_proc.time_queue = time_delta # for measurement
+        self.fuse_proc.time_queue = time_fuse # for measurement
+
+        if self.synthesis_option.get(Protocol.SYNTHESIS_OPTION_EARLY_START, False):
+            # 1. resume VM
+            self.resumed_VM = synthesis.SynthesizedVM(modified_img, modified_mem, self.fuse)
+            time_start_resume = time.time()
+            self.resumed_VM.start()
+            time_end_resume = time.time()
+
+            # 2. start processes
+            download_process.start()
+            decomp_process.start()
+            self.delta_proc.start()
+            self.fuse_proc.start()
+
+            # 3. return success right after resuming VM
+            # before receiving all chunks
+            self.resumed_VM.join()
+            self.send_synthesis_done()
+
+            # 4. then wait fuse end
+            self.fuse_proc.join()
+        else:
+            # 1. start processes
+            download_process.start()
+            decomp_process.start()
+            self.delta_proc.start()
+            self.fuse_proc.start()
+
+            # 2. resume VM
+            self.resumed_VM = synthesis.SynthesizedVM(modified_img, modified_mem, self.fuse)
+            self.resumed_VM.start()
+
+            # 3. wait for fuse end
+            self.fuse_proc.join()
+
+            # 4. return success to client
+            time_start_resume = time.time()     # measure pure resume time
+            self.resumed_VM.join()
+            time_end_resume = time.time()
+            self.send_synthesis_done()
+
+        end_time = time.time()
+
+        # printout result
+        SynthesisHandler.print_statistics(start_time, end_time, \
+                time_transfer, time_decomp, time_delta, time_fuse, \
+                resume_time=(time_end_resume-time_start_resume))
+
+        if self.synthesis_option.get(Protocol.SYNTHESIS_OPTION_DISPLAY_VNC, False):
+            synthesis.connect_vnc(self.resumed_VM.machine, no_wait=True)
+
+        # save all the resource to the session resource
+        global session_resources
+        s_resource = SessionResource(session_id)
+        s_resource.add(SessionResource.DELTA_PROCESS, self.delta_proc)
+        s_resource.add(SessionResource.RESUMED_VM, self.resumed_VM)
+        s_resource.add(SessionResource.FUSE, self.fuse)
+        s_resource.add(SessionResource.OVERLAY_PIPE, self.overlay_pipe)
+        s_resource.add(SessionResource.OVERLAY_DIR, self.tmp_overlay_dir)
+        s_resource.add(SessionResource.OVERLAY_DB_ENTRY, new_overlayvm)
+        session_resources[session_id] = s_resource
+        LOG.info("Resource is allocated for Session: %s" % str(session_id))
+
+        # printout synthesis statistics
+        if self.synthesis_option.get(Protocol.SYNTHESIS_OPTION_SHOW_STATISTICS):
+            mem_access_list = self.resumed_VM.monitor.mem_access_chunk_list
+            disk_access_list = self.resumed_VM.monitor.disk_access_chunk_list
+            synthesis.synthesis_statistics(meta_info, temp_overlay_filepath, \
+                    mem_access_list, disk_access_list)
+        LOG.info("[SOCKET] waiting for client exit message")
 
     def _handle_get_resource_info(self, message):
         if hasattr(self.server, 'resource_monitor'):
@@ -567,6 +822,22 @@ class SynthesisHandler(SocketServer.StreamRequestHandler):
         if ret_session:
             ret_session.terminate()
         self.server.dbconn.session.commit()
+
+        # deallocate all resource in the session
+        session_resource = session_resources.get(my_session_id)
+        if session_resource is None:
+            # No saved resource for the session
+            msg = "No resource to be deallocated found at Session (%s)" % my_session_id
+            LOG.warning(msg)
+        else:
+            # deallocate all the session resource
+            msg = "Deallocating resources for the Session (%s)" % my_session_id
+            LOG.info(msg)
+            session_resource.deallocate()
+            del session_resources[my_session_id]
+
+        LOG.info("  - %s" % str(pformat(message)))
+        self.ret_success(Protocol.MESSAGE_COMMAND_FINISH)
 
         # send response
         self.ret_success(Protocol.MESSAGE_COMMAND_SESSION_CLOSE)
@@ -616,6 +887,10 @@ class SynthesisHandler(SocketServer.StreamRequestHandler):
             elif command == Protocol.MESSAGE_COMMAND_FINISH:
                 if self._check_session(message):
                     self._handle_finish(message)
+            elif command == Protocol.MESSAGE_COMMAND_SEND_OVERLAY_URL:
+                # VM provisioning with given OVERLAY URL
+                if self._check_session(message):
+                    self._handle_synthesis_url(message)
             elif command == Protocol.MESSAGE_COMMAND_GET_RESOURCE_INFO:
                 self._handle_get_resource_info(message)
             elif command == Protocol.MESSAGE_COMMAND_SESSION_CREATE:
@@ -727,16 +1002,6 @@ class SynthesisServer(SocketServer.TCPServer):
                 % str(self.socket.getsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY)))
         LOG.info("-"*50)
 
-        # Start UPnP Server
-        try:
-            self.upnp_server = UPnPServer()
-            self.upnp_server.start()
-        except UPnPError as e:
-            LOG.info(str(e))
-            LOG.info("[Warning] Cannot start UPnP Server")
-            self.upnp_server = None
-        LOG.info("[INFO] Start UPnP Server")
-
         # This is cloudlet discovery related part and separated out
         '''
         if settings.register_server:
@@ -788,10 +1053,6 @@ class SynthesisServer(SocketServer.TCPServer):
         # close all thread
         if self.socket != -1:
             self.socket.close()
-        if hasattr(self, 'upnp_server') and self.upnp_server != None:
-            LOG.info("[TERMINATE] Terminate UPnP Server")
-            self.upnp_server.terminate()
-            self.upnp_server.join()
         if hasattr(self, 'register_client') and self.register_client != None:
             LOG.info("[TERMINATE] Deregister from directory service")
             self.register_client.terminate()

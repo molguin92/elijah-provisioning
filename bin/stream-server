@@ -1,0 +1,82 @@
+#!/usr/bin/env python 
+#
+# Cloudlet Infrastructure for Mobile Computing
+#
+#   Author: Kiryong Ha <krha@cmu.edu>
+#
+#   Copyright (C) 2011-2013 Carnegie Mellon University
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+
+import os
+import sys
+import signal
+from optparse import OptionParser
+
+if os.path.exists("../elijah") is True:
+    sys.path.insert(0, "../")
+from elijah.provisioning.stream_server import StreamSynthesisServer
+from elijah.provisioning.stream_server import StreamSynthesisConst
+from elijah.provisioning.synthesis import validate_congifuration
+
+
+def sigint_handler(signum, frame):
+    sys.stdout.write("Exit by user\n")
+    if server != None:
+        server.terminate()
+    sys.exit(0)
+
+
+def main(argv=sys.argv):
+    if not validate_congifuration():
+        sys.stderr.write("failed to validate configuration\n")
+        sys.exit(1)
+
+    parser = OptionParser(usage="usage: %prog ")
+    parser.add_option("-t", "--terminate", action="store_true",
+                      dest="terminate", default=False,
+                      help="terminate after one VM handoff operation")
+    parser.add_option("-p", "--port", action="store", dest="port_number",
+                      default=StreamSynthesisConst.SERVER_PORT_NUMBER,
+                      help="terminate after one VM handoff operation")
+    parser.add_option("-d", "--datafile", action="store",
+                      dest="handoff_datafile", default=None,
+                      help="specify datafile for handoff destination")
+    settings, args = parser.parse_args(argv)
+    if settings.handoff_datafile:
+        settings.handoff_datafile = os.path.abspath(settings.handoff_datafile)
+
+    server = StreamSynthesisServer(
+        int(settings.port_number), timeout=120,
+        handoff_datafile=settings.handoff_datafile
+    )
+    try:
+        if settings.terminate:
+            server.handle_request()
+        else:
+            server.serve_forever()
+    except Exception as e:
+        #sys.stderr.write(str(e))
+        server.terminate()
+        sys.exit(1)
+    except KeyboardInterrupt as e:
+        sys.stdout.write("Exit by user\n")
+        server.terminate()
+        sys.exit(1)
+    else:
+        server.terminate()
+        sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()

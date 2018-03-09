@@ -4,24 +4,21 @@ import java.net.URL;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.teleal.cling.model.meta.Device;
-import org.teleal.cling.model.meta.RemoteDevice;
 
 import edu.cmu.cs.cloudlet.android.util.KLog;
 
 public class CloudletDevice {
 
 	private String ipAddress;
-	private boolean isUPnP;
+	private boolean isLocalDiscovery;
 
-	public CloudletDevice(Device device) {
-		URL address = ((RemoteDevice) device).getIdentity().getDescriptorURL();
-		this.ipAddress = address.getHost();
-		this.isUPnP = true;
+	public CloudletDevice(String address, int port) {
+		this.ipAddress = address;
+		this.isLocalDiscovery = true;
 	}
 	
 	public CloudletDevice(JSONObject device){
-		this.isUPnP = false;
+		this.isLocalDiscovery = false;
 
 		try {
 			this.ipAddress = device.getString("ip_address");
@@ -36,11 +33,11 @@ public class CloudletDevice {
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (o == null || getClass() != o.getClass())
+		if (o == null || (o instanceof CloudletDevice) == false)
 			return false;
 		
 		CloudletDevice that = (CloudletDevice) o;
-		if (this.ipAddress == that.ipAddress)
+		if (this.ipAddress.equals(that.ipAddress) == true)
 			return true;
 		else
 			return false;
